@@ -276,6 +276,61 @@ static mut USB_BUS: Option<UsbBusAllocator<hal::usb::UsbBus>> = None;
 /// The USB Human Interface Device Driver (shared with the interrupt).
 static mut USB_HID: Option<HIDClass<hal::usb::UsbBus>> = None;
 
+// define my shit
+const MOUSE_LEFT: u8 = 1;
+const MOUSE_RIGHT: u8 = 2;
+const MOUSE_MIDDLE: u8 = 3;
+
+static SHIT: &[u8] = &[
+    0x05, 0x01, // Usage Page (Generic Desktop)
+    0x09, 0x06, // Usage (Keyboard)
+    0xa1, 0x01, // Collection (Application)
+    0x05, 0x07, // Usage Page (Key Codes)
+    0x19, 0xe0, // Usage Minimum (224)
+    0x29, 0xe7, // Usage Maximum (231)
+    0x15, 0x00, // Logical Minimum (0)
+    0x25, 0x01, // Logical Maximum (1)
+    0x75, 0x01, // Report Size (1)
+    0x95, 0x08, // Report count (8)
+    0x81, 0x02, // Input (Data, Variable, Absolute)
+    0x19, 0x00, // Usage Minimum (0)
+    0x29, 0xFF, // Usage Maximum (255)
+    0x26, 0xFF, 0x00, // Logical Maximum (255)
+    0x75, 0x08, // Report Size (8)
+    0x95, 0x01, // Report Count (1)
+    0x81, 0x03, // Input (Const, Variable, Absolute)
+    0x05, 0x08, // Usage Page (LEDs)
+    0x19, 0x01, // Usage Minimum (1)
+    0x29, 0x05, // Usage Maximum (5)
+    0x25, 0x01, // Logical Maximum (1)
+    0x75, 0x01, // Report Size (1)
+    0x95, 0x05, // Report Count (5)
+    0x91, 0x02, // Output (Data, Variable, Absolute)
+    0x95, 0x03, // Report Count (3)
+    0x91, 0x03, // Output (Constant, Variable, Absolute)
+    0x05, 0x07, // Usage Page (Key Codes)
+    0x19, 0x00, // Usage Minimum (0)
+    0x29, 0xDD, // Usage Maximum (221)
+    0x26, 0xFF, 0x00, // Logical Maximum (255)
+    0x75, 0x08, // Report Size (8)
+    0x95, 0x06, // Report Count (6)
+    0x81, 0x00, // Input (Data, Array, Absolute)
+    0xc0, // End Collection
+];
+
+static CUSTOM_KEEB_REPORT: [u8; 21] = [
+    0x6, 0x0, 0xff, // USEGE PAGE Vendor
+    0x9, 0x1, // USAGE Vendor
+    0xa1, 0x1, // Collection (Application)
+    0x15, 0x0, // Logical minimum
+    0x26, 0xff, 0x0, // Logical maximum
+    0x75, 0x8, // Report size 8
+    0x95, 0x1, // Report count 1
+    0x09, 0x01, // USAGE Vendor <---- manually added here
+    0x81, 0x0,  // Input
+    0xc0, // End application collection
+];
+
 /// Entry point to our bare-metal application.
 ///
 /// The `#[entry]` macro ensures the Cortex-M start-up code calls this function
@@ -325,18 +380,24 @@ fn main() -> ! {
     let bus_ref = unsafe { USB_BUS.as_ref().unwrap() };
 
     // Set up the USB HID Class Device driver, providing Mouse Reports
-    let usb_hid = HIDClass::new(bus_ref, MouseReport::desc(), 60);
+    // let usb_hid = HIDClass::new(bus_ref, &CUSTOM_KEEB_REPORT, 10);
+    let usb_hid = HIDClass::new(bus_ref, KeyboardReport::desc(), 10);
+    // let usb_hid = HIDClass::new(bus_ref, MouseReport::desc(), 60);
     unsafe {
         // Note (safety): This is safe as interrupts haven't been started yet.
         USB_HID = Some(usb_hid);
     }
 
     // Create a USB device with a fake VID and PID
-    let usb_dev = UsbDeviceBuilder::new(bus_ref, UsbVidPid(0x16c0, 0x27da))
-        .manufacturer("Fake company")
-        .product("Twitchy Mousey")
+    let usb_dev = UsbDeviceBuilder::new(bus_ref, UsbVidPid(0x16c0, 0x27dd))
+        // let usb_dev = UsbDeviceBuilder::new(bus_ref, UsbVidPid(0x16c0, 0x27da))
+        .manufacturer("Test")
+        .product("Test Keeb")
         .serial_number("TEST")
-        .device_class(0xEF) // misc
+        // .device_class(0xEF) // misc
+        .device_class(0)
+        //.device_protocol(01)
+        // .composite_with_iads()
         .build();
     unsafe {
         // Note (safety): This is safe as interrupts haven't been started yet
@@ -352,27 +413,42 @@ fn main() -> ! {
 
     // Move the cursor up and down every 200ms
     loop {
-        delay.delay_ms(100);
+        // delay.delay_ms(100);
 
-        let rep_up = MouseReport {
-            x: 0,
-            y: 4,
-            buttons: 0,
-            wheel: 0,
-            pan: 0,
+        // let click_down_report = MouseReport {
+        //     x: 0,
+        //     y: 4,
+        //     buttons: 0,
+        //     wheel: 0,
+        //     pan: 0,
+        // };
+        // push_mouse_movement(click_down_report).ok().unwrap_or(0);
+
+        // delay.delay_ms(25);
+
+        // let click_up_report = MouseReport {
+        //     x: 0,
+        //     y: -4,
+        //     buttons: 0,
+        //     wheel: 0,
+        //     pan: 0,
+        // };
+        // push_mouse_movement(click_up_report).ok().unwrap_or(0);
+
+        let key_down_report = KeyboardReport {
+            modifier: 0,
+            reserved: 0,
+            leds: 0,
+            keycodes: [9, 0, 0, 0, 0, 0],
         };
-        push_mouse_movement(rep_up).ok().unwrap_or(0);
-
-        delay.delay_ms(100);
-
-        let rep_down = MouseReport {
-            x: 0,
-            y: -4,
-            buttons: 0,
-            wheel: 0,
-            pan: 0,
+        push_key_report(key_down_report).ok().unwrap_or(0);
+        let key_up_report = KeyboardReport {
+            modifier: 0,
+            reserved: 0,
+            leds: 0,
+            keycodes: [0, 0, 0, 0, 0, 0],
         };
-        push_mouse_movement(rep_down).ok().unwrap_or(0);
+        push_key_report(key_up_report).ok().unwrap_or(0);
     }
 }
 
@@ -388,6 +464,11 @@ fn push_mouse_movement(report: MouseReport) -> Result<usize, usb_device::UsbErro
     .unwrap()
 }
 
+fn push_key_report(report: KeyboardReport) -> Result<usize, usb_device::UsbError> {
+    cortex_m::interrupt::free(|_| unsafe { USB_HID.as_mut().map(|hid| hid.push_input(&report)) })
+        .unwrap()
+}
+
 /// This function is called whenever the USB Hardware generates an Interrupt
 /// Request.
 #[allow(non_snake_case)]
@@ -398,5 +479,3 @@ unsafe fn USBCTRL_IRQ() {
     let usb_hid = USB_HID.as_mut().unwrap();
     usb_dev.poll(&mut [usb_hid]);
 }
-
-// End of fi

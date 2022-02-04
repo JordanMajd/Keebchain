@@ -38,6 +38,7 @@ ws2812-pio = { git = "https://github.com/ithinuel/ws2812-pio-rs", rev = "83fc175
 usb-device= "0.2.8"
 usbd-serial = "0.1.1"
 usbd-hid = "0.5.1"
+#kiibohd-usb = { git = "https://github.com/kiibohd/kiibohd-core.git" }
 
 # cargo build/run
 [profile.dev]
