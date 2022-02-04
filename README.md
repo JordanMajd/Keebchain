@@ -1,4 +1,26 @@
-# Project template for rp2040-hal
+# Keebchain
+
+Generated from [Project template for rp2040-hal](https://github.com/rp-rs/rp2040-project-template)
+
+
+## My stuff
+
+Taking notes:
+
+```
+rustup target add thumbv6m-none-eabi
+cargo install flip-link
+cargo install elf2uf2-rs --locked
+```
+
+Then
+
+```
+# press reset key while holding boot key
+cargo run
+```
+
+## Their stuff
 
 This template is intended as a starting point for developing your own firmware based on the rp2040-hal.
 
@@ -221,3 +243,11 @@ under these terms.
 
 Raise an issue: [https://github.com/rp-rs/rp2040-project-template/issues](https://github.com/rp-rs/rp2040-project-template/issues)
 Chat to us on Matrix: [#rp-rs:matrix.org](https://matrix.to/#/#rp-rs:matrix.org)
+
+
+## Resources
+
+Useful links
+
+- [rp2040-project-template](https://github.com/rp-rs/rp2040-project-template)
+- [Waveshare RP2040-Zero](https://www.waveshare.com/rp2040-zero.htm)
