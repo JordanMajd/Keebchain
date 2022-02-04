@@ -35,6 +35,9 @@ smart-leds = "0.3.0"
 nb = "1.0.0"
 pio = "0.1.0"
 ws2812-pio = { git = "https://github.com/ithinuel/ws2812-pio-rs", rev = "83fc175fd99f230e477f6fc4a0802e29fd8dcd6f" }
+usb-device= "0.2.8"
+usbd-serial = "0.1.1"
+usbd-hid = "0.5.1"
 
 # cargo build/run
 [profile.dev]
