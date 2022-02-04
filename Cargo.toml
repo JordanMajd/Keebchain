@@ -20,19 +20,18 @@ defmt-rtt = "0.3.0"
 panic-probe = { version = "0.3.0", features = ["print-defmt"] }
 
 # We're using a Pico by default on this template
-#rp-pico = "0.2.0"
+rp-pico = "0.2.0"
 # but you can use any BSP. Uncomment this to use the pro_micro_rp2040 BSP instead
 # I'm using waveshare RP2040 zero, similar enough to pro micro
-sparkfun-pro-micro-rp2040 = "0.1.0"
+#sparkfun-pro-micro-rp2040 = "0.1.0"
 
 # If you're not going to use a Board Support Package you'll need these:
-rp2040-hal = { version="0.3.0", features=["rt"] }
+#rp2040-hal = { version="0.3.0", features=["rt"] }
 #rp2040-boot2 = "0.2.0"
 
-# Set up ws2812
+# my imports
 panic-halt = "0.2.0"
 smart-leds = "0.3.0"
-#embedded-time = "0.12.0"
 nb = "1.0.0"
 pio = "0.1.0"
 ws2812-pio = { git = "https://github.com/ithinuel/ws2812-pio-rs", rev = "83fc175fd99f230e477f6fc4a0802e29fd8dcd6f" }
